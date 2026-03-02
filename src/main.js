@@ -126,16 +126,22 @@ const main = async () => {
     }
     handleResize(); // Initial call to set size
 
+    const ASSETS_URL = "assets/";
+
     // ── Load assets ───────────────────────────────────────────────────────────
     const ASSET_PATHS = {
-        wallpaper: "assets/wallpaper.png",
-        player: "assets/playership.png",
-        enemy: "assets/enemyship.png",
-        drone: "assets/drone.png",
-        laser: "assets/lasers.png",
-        explosion: "assets/explosion.png",
-        teleport: "assets/teleport.png",
+        wallpaper: "wallpaper.png",
+        player: "playership.png",
+        enemy: "enemyship.png",
+        drone: "drone.png",
+        laser: "lasers.png",
+        explosion: "explosion.png",
+        teleport: "teleport.png",
     };
+
+    for(let k in ASSET_PATHS) {
+        ASSET_PATHS[k] = ASSETS_URL + ASSET_PATHS[k];
+    }
 
     // Build spritesheets from loaded images
     const buildSheets = (images) => ({

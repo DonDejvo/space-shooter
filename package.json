@@ -1,0 +1,24 @@
+{
+  "name": "space-shooter-new",
+  "version": "1.0.0",
+  "description": "A 2D top-down space shooter built on the provided engine.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DonDejvo/space-shooter.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/DonDejvo/space-shooter/issues"
+  },
+  "homepage": "https://github.com/DonDejvo/space-shooter#readme",
+  "devDependencies": {
+    "esbuild": "^0.27.3"
+  }
+}
