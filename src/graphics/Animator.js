@@ -1,3 +1,4 @@
+import { Message } from "../core/Message.js";
 import { SceneNode } from "../core/SceneNode.js";
 
 export class Animation {
@@ -15,17 +16,15 @@ export class Animator extends SceneNode {
         this.animation = null;
         this.currentFrameIndex = 0;
         this.frameTimer = 0;
-        this._onComplete = null;
     }
 
     setSprite(sprite) { this.sprite = sprite; this.animation = null; }
 
-    play(anim, onComplete) {
+    play(anim) {
         if (!this.sprite) return;
         this.animation = anim;
         this.currentFrameIndex = 0;
         this.frameTimer = 0;
-        this._onComplete = onComplete || null;
         this.sprite.setRegion(this.sprite.spritesheet.getSpriteXY(anim.frames[0]));
     }
 
@@ -40,10 +39,9 @@ export class Animator extends SceneNode {
                 this.currentFrameIndex = 0;
             } else {
                 this.currentFrameIndex = this.animation.frames.length - 1;
-                const cb = this._onComplete;
                 this.animation = null;
                 this._onComplete = null;
-                if (cb) cb();
+                this.emit(new Message("AnimationCompleted", true));
                 return;
             }
         }

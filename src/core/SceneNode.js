@@ -14,6 +14,29 @@ export class SceneNode {
         this.scene = null;
     }
 
+    onMessage(message) {
+    }
+
+    emit(message) {
+        if(!message.node) message.node = this;
+        this.onMessage(message);
+        if (!message.isStopped && this._parent) {
+            this._parent.emit(message);
+        }
+    }
+
+    broadcast(message) {
+        if(!message.node) message.node = this;
+        this.onMessage(message);
+        if (!message.isStopped) {
+            const children = this._nodes;
+            for (let i = 0; i < children.length; i++) {
+                children[i].broadcast(message);
+                if (message.isStopped) break;
+            }
+        }
+    }
+
     addNode(node) {
         if (!this.scene) throw new Error("Cannot add node: not in scene");
         node.setParent(this, false);
@@ -23,7 +46,10 @@ export class SceneNode {
     removeNode(node) {
         if (!this.scene) throw new Error("Cannot remove node: not in scene");
         const i = this._nodes.indexOf(node);
-        if (i !== -1) { this._nodes.splice(i, 1); this.scene.removeNode(node); }
+        if (i !== -1) {
+            this._nodes.splice(i, 1);
+            this.scene.removeNode(node);
+        }
     }
 
     getNodes(nodeClass) {
@@ -72,13 +98,16 @@ export class SceneNode {
             }
             newParent._nodes.push(this);
         } else if (curParent) {
-            if (worldPositionStays) { this.position.copy(curWorldPos); this.angle = curWorldAngle; }
+            if (worldPositionStays) {
+                this.position.copy(curWorldPos);
+                this.angle = curWorldAngle;
+            }
             const i = curParent._nodes.indexOf(this);
             if (i !== -1) curParent._nodes.splice(i, 1);
         }
     }
 
-    start() {}
-    update(dt) {}
-    destroy() {}
+    start() { }
+    update(dt) { }
+    destroy() { }
 }

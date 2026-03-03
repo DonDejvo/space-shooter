@@ -51,7 +51,7 @@ export class EnemyShip extends Ship {
         const toTarget = this._moveTarget.clone().sub(this.position);
         const targetDist = toTarget.len();
 
-        if (targetDist > 0) {
+        if (targetDist > 5) {
             const moveDir = toTarget.clone().normalize();
             this.position.x += moveDir.x * this.speed * dt;
             this.position.y += moveDir.y * this.speed * dt;

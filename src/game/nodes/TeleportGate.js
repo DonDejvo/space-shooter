@@ -14,14 +14,13 @@ export class TeleportGate extends Sprite {
         this.scale.set(1.0, 1.0);
         this.position.copy(params.position || new Vector());
         this._activated = false;
-        this._animator = null;
         this.onActivate = params.onActivate || null; // callback when teleport completes
+        this._animator = new Animator(this);
     }
 
     start() {
         super.start();
-        this._animator = new Animator(this);
-        this.scene.addNode(this._animator);
+        this.addNode(this._animator);
     }
 
     activate() {
@@ -31,20 +30,18 @@ export class TeleportGate extends Sprite {
         const frames = [];
         for (let i = 0; i < 24; i++) frames.push(i);
         const anim = new Animation(frames, { frameDuration: 100, repeat: false });
-        this._animator.play(anim, () => {
+        this._animator.play(anim);
+    }
+
+    onMessage(message) {
+        if (message.type === "AnimationCompleted") {
             if (this.onActivate) this.onActivate();
-        });
+            message.stop();
+        }
     }
 
     update(dt) {
         this.needsUpdate = true;
         if (this._animator) this._animator.update(dt);
-    }
-
-    destroy() {
-        super.destroy();
-        if (this._animator && this._animator.scene) {
-            this._animator.scene.removeNode(this._animator);
-        }
     }
 }
