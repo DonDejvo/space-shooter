@@ -1,10 +1,10 @@
+import { bounds } from "../utils/bounds.js";
 import { Drawable } from "./Drawable.js";
 
-export class UIRect extends Drawable {
+export class UIElement extends Drawable {
     constructor(params) {
         super({
             ...params,
-            isStatic: params.isStatic ?? true,
             isScreenSpace: params.isScreenSpace ?? true
         });
 
@@ -14,6 +14,10 @@ export class UIRect extends Drawable {
         this.textColor = params.textColor || "white";
         this.fontSize = params.fontSize || 16;
         this.fontFamily = params.fontFamily || "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    }
+
+    collides(pos) {
+        return bounds.containsPoint(this.getBounds(), pos);
     }
 
     render(renderer, camera) {

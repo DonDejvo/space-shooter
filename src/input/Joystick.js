@@ -1,5 +1,5 @@
 import { PointerControl } from "./PointerControl.js";
-import { UICircle } from "../graphics/UICircle.js";
+import { UICircleElement } from "../graphics/UICircleElement.js";
 import { Vector } from "../utils/Vector.js";
 
 export class Joystick extends PointerControl {
@@ -13,17 +13,15 @@ export class Joystick extends PointerControl {
 
         this.inputVector = new Vector(0, 0);
 
-        this.baseUI = new UICircle({
+        this.baseUI = new UICircleElement({
             radius: this.radius,
             color: "rgba(255, 255, 255, 0.2)",
-            isStatic: true,
             zIndex: params.zIndex || 9999
         });
 
-        this.thumbUI = new UICircle({
+        this.thumbUI = new UICircleElement({
             radius: this.thumbRadius,
             color: "rgba(255, 255, 255, 0.8)",
-            isStatic: false,
             zIndex: (params.zIndex || 9999) + 1
         });
     }
@@ -36,7 +34,7 @@ export class Joystick extends PointerControl {
 
     onPointerStart(id, pos) {
 
-        if (Vector.distance(pos, this.worldPosition) > this.radius * 1.25)
+        if (!this.baseUI.collides(pos))
             return false;
 
         this.updateInput(pos);

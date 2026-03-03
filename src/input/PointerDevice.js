@@ -11,7 +11,7 @@ export class PointerDevice extends InputDevice {
         this.vw = 0;
         this.vh = 0;
 
-        this.controls = new Set();
+        
         this.pointerOwners = new Map();
 
         element.addEventListener("pointerdown", e => this.handle(e, "start"));
@@ -27,12 +27,8 @@ export class PointerDevice extends InputDevice {
         this.vh = vh;
     }
 
-    registerControl(control) {
-        this.controls.add(control);
-    }
-
     unregisterControl(control) {
-        this.controls.delete(control);
+        super.unregisterControl(control);
 
         for (const [id, owner] of this.pointerOwners.entries()) {
             if (owner === control) {

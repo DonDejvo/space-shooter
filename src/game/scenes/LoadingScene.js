@@ -1,11 +1,10 @@
 import { Scene } from "../../core/Scene.js";
 import { Drawable } from "../../graphics/Drawable.js";
+import { UIElement } from "../../graphics/UIElement.js";
 import { Button } from "../../input/Button.js";
 import { InputManager } from "../../input/InputManager.js";
-import { bounds } from "../../utils/bounds.js";
-import { Vector } from "../../utils/Vector.js";
 
-class StartButtonDrawable extends Drawable {
+class StartButtonDrawable extends UIElement {
     constructor(params) {
         super({ zIndex: 50, isStatic: false, isScreenSpace: true, width: params.width, height: params.height });
         this._hover = false;
@@ -68,7 +67,7 @@ class StartButton extends Button {
 
         this.loaded = false;
         this.onClickRef = () => {
-            if(this.loaded) onStart();
+            if (this.loaded) onStart();
         }
     }
 
@@ -83,20 +82,12 @@ class StartButton extends Button {
 
         InputManager.get().getAction("game:start").onEnd.delete(this.onClickRef);
     }
-
-    collides(pos) {
-        const worldPos = this.worldPosition;
-        const vec = new Vector(this.width / 2, this.height / 2);
-        const rect = { min: worldPos.clone().sub(vec), max: worldPos.clone().add(vec) };
-
-        return bounds.containsPoint(rect, pos);
-    }
 }
 
-class FullscreenButtonDrawable extends Drawable {
+class FullscreenButtonDrawable extends UIElement {
     constructor(params) {
         super({ zIndex: 60, isStatic: true, isScreenSpace: true, width: 40, height: 40 });
-        this.isFullscreen = false;   
+        this.isFullscreen = false;
     }
 
     render(renderer, camera) {
@@ -143,26 +134,29 @@ class FullscreenButton extends Button {
         this.width = size;
         this.height = size;
 
-        // Sync icon state with actual document state
-        document.addEventListener("fullscreenchange", () => {
+        this.fullscreenRef = () => {
             drawable.isFullscreen = !!document.fullscreenElement;
-        });
+        }
 
         this.onClickRef = () => {
             this.toggle();
         }
     }
 
-     start() {
+    start() {
         super.start();
 
         InputManager.get().getAction("game:fullscreen").onEnd.add(this.onClickRef);
+
+        document.addEventListener("fullscreenchange", this.fullscreenRef);
     }
 
     destroy() {
         super.destroy();
 
         InputManager.get().getAction("game:fullscreen").onEnd.delete(this.onClickRef);
+
+        document.removeEventListener("fullscreenchange", this.fullscreenRef);
     }
 
     // Logic to toggle fullscreen
@@ -177,13 +171,6 @@ class FullscreenButton extends Button {
             }
         }
     }
-
-    collides(pos) {
-        const worldPos = this.worldPosition;
-        const vec = new Vector(this.width / 2, this.height / 2);
-        const rect = { min: worldPos.clone().sub(vec), max: worldPos.clone().add(vec) };
-        return bounds.containsPoint(rect, pos);
-    }
 }
 
 // Simple fullscreen image drawable
@@ -196,7 +183,7 @@ class WallpaperDrawable extends Drawable {
     render(renderer, camera) {
         const { ctx } = renderer;
         ctx.setTransform(camera.projMatrix);
-        
+
         if (this._image) {
             ctx.drawImage(this._image, 0, 0, camera.vw, camera.vh);
         } else {

@@ -11,16 +11,13 @@ export class Button extends PointerControl {
 
     start() {
         super.start();
-        this.addNode(this.ui);
-    }
 
-    collides(pos) {
-        return false;
+        this.addNode(this.ui);
     }
 
     onPointerStart(id, pos) {
 
-        if (!this.collides(pos)) return false;
+        if (!this.ui.collides(pos)) return false;
 
         this.setPressed(true);
         this.emit("start", 1);

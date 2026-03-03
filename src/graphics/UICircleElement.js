@@ -1,10 +1,15 @@
-import { UIRect } from "./UIRect.js";
+import { Vector } from "../utils/Vector.js";
+import { UIElement } from "./UIElement.js";
 
-export class UICircle extends UIRect {
+export class UICircleElement extends UIElement {
     constructor(params) {
         super(params);
 
         this.radius = params.radius || 30;
+    }
+
+    collides(pos) {
+        return Vector.distance(this.worldPosition, pos) <= this.radius * this.worldScale.x;
     }
 
     render(renderer, camera) {

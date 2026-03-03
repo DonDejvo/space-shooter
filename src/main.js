@@ -35,34 +35,33 @@ const main = async () => {
     inputManager.addAction("game:start");
     inputManager.addBinding({
         action: "game:start",
-        required: [],
         source: { device: "Pointer", control: "StartBtn" }
     });
 
     inputManager.addAction("game:fullscreen");
     inputManager.addBinding({
         action: "game:fullscreen",
-        required: [],
         source: { device: "Pointer", control: "FsBtn" }
     });
 
     inputManager.addAction("player:move");
     inputManager.addBinding({
         action: "player:move",
-        required: [],
         source: { device: "Keyboard", control: "WSAD" }
     });
     inputManager.addBinding({
         action: "player:move",
-        required: [],
         source: { device: "Pointer", control: "MoveJoystick" }
     });
 
     inputManager.addAction("player:shoot");
     inputManager.addBinding({
         action: "player:shoot",
-        required: [],
         source: { device: "Pointer", control: "Position" }
+    });
+    inputManager.addBinding({
+        action: "player:shoot",
+        source: { device: "Pointer", control: "ShootJoystick" }
     });
 
     // ── Scene management ──────────────────────────────────────────────────────

@@ -4,7 +4,7 @@ export class InputManager {
     static _instance = null;
 
     static get() {
-        if(this._instance === null) {
+        if (this._instance === null) {
             this._instance = new InputManager();
         }
         return this._instance;
@@ -24,7 +24,7 @@ export class InputManager {
 
     getAction(name) { return this.actions.get(name); }
 
-    addBinding({ action, required, source }) {
+    addBinding({ action, required = [], source }) {
         const binding = { action, required, source };
         const controls = [...required];
         if (source) controls.push(source);
@@ -48,7 +48,7 @@ export class InputManager {
         for (const b of bindings) {
             const action = this.actions.get(b.action);
             if (!action) continue;
-            if(data) action.data = { ...data };
+            if (data) action.data = { ...data };
             let allPressed = b.required.every(c => this.isPressed(c));
             if (b.source) allPressed = allPressed && this.isPressed(b.source);
             if (allPressed && b.source) {

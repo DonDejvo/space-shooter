@@ -32,19 +32,18 @@ class MapBackground extends Drawable {
     render(renderer, camera) {
         const { ctx } = renderer;
         const m = camera.projViewMatrix.multiply(this.modelMatrix);
-        ctx.save();
         ctx.setTransform(m.a, m.b, m.c, m.d, m.e, m.f);
 
         const W = this.mapW, H = this.mapH;
 
         // Map boundary
-        ctx.strokeStyle = "rgba(60,120,200,0.4)";
+        ctx.strokeStyle = "rgba(60,120,200,0.5)";
         ctx.lineWidth = 2;
         ctx.strokeRect(-W / 2, -H / 2, W, H);
 
         // Subtle grid
-        ctx.strokeStyle = "rgba(40,60,120,0.15)";
-        ctx.lineWidth = 0.5;
+        ctx.strokeStyle = "rgba(40,60,120,0.5)";
+        ctx.lineWidth = 1;
         const step = 80;
         for (let x = -W / 2; x <= W / 2; x += step) {
             ctx.beginPath(); ctx.moveTo(x, -H / 2); ctx.lineTo(x, H / 2); ctx.stroke();
@@ -52,7 +51,6 @@ class MapBackground extends Drawable {
         for (let y = -H / 2; y <= H / 2; y += step) {
             ctx.beginPath(); ctx.moveTo(-W / 2, y); ctx.lineTo(W / 2, y); ctx.stroke();
         }
-        ctx.restore();
     }
     getBounds() {
         return {
@@ -104,14 +102,22 @@ export class LevelScene extends Scene {
         wsad.name = "WSAD";
         this.addNode(wsad);
 
-        const joystick = new Joystick(inputManager.pointerDevice);
-        joystick.name = "MoveJoystick";
-        joystick.position.set(140, this._vh - 120);
-        this.addNode(joystick);
-
-        const pointerPos = new PointerPosition(inputManager.pointerDevice);
+        const mapFunc = (pos) => pos.sub(new Vector(this._vw / 2, this._vh / 2)).normalize();
+        const pointerPos = new PointerPosition(inputManager.pointerDevice, { mapFunc });
         pointerPos.name = "Position";
         this.addNode(pointerPos);
+
+        if ("ontouchstart" in document) {
+            const joystick = new Joystick(inputManager.pointerDevice, { priority: 10 });
+            joystick.name = "MoveJoystick";
+            joystick.position.set(140, this._vh - 120);
+            this.addNode(joystick);
+
+            const joystick2 = new Joystick(inputManager.pointerDevice, { priority: 10 });
+            joystick2.name = "ShootJoystick";
+            joystick2.position.set(this._vw - 140, this._vh - 120);
+            this.addNode(joystick2);
+        }
 
         // Stars background
         this.addNode(new ParallaxStars());
@@ -128,8 +134,7 @@ export class LevelScene extends Scene {
             explosionSheet: sheets.explosion,
             inputManager,
             camera: this.camera,
-            canvas,
-            moveJoystick: joystick
+            canvas
         });
         this._player.position.set(0, 0);
         this.addNode(this._player);
@@ -340,5 +345,7 @@ export class LevelScene extends Scene {
     onResize(vw, vh) {
         this._vw = vw;
         this._vh = vh;
+
+        this.findNode("ShootJoystick")?.position.set(this._vw - 140, this._vh - 120);
     }
 }

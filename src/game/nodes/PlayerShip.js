@@ -4,22 +4,20 @@ import { Vector } from "../../utils/Vector.js";
 import { InputManager } from "../../input/InputManager.js";
 import { random } from "../../utils/random.js";
 import { SceneNode } from "../../core/SceneNode.js";
-import { math } from "../../utils/math.js";
 
 export class PlayerShip extends Ship {
     constructor(params) {
         super({
             ...params,
-            maxHp: 12000,
+            maxHp: 16000,
             maxShield: 20000,
-            shieldRegenRate: 500,
+            shieldRegenRate: 1000,
             hpRegenRate: 250,
-            hpRegenDelay: 10
+            hpRegenDelay: 8
         });
         this._inputManager = params.inputManager;
         this._camera = params.camera;
         this._canvas = params.canvas;
-        this._moveJoystick = params.moveJoystick;
 
         this.speed = 110;
         this._fireRate = 0.25;
@@ -40,11 +38,11 @@ export class PlayerShip extends Ship {
 
         this._onShootStartRef = (value) => {
             this._isShooting = true;
-            this.handleAim(value);
+            this._aimDir.copy(value);
         }
 
         this._onShootChageRef = (value) => {
-            this.handleAim(value);
+            this._aimDir.copy(value);
         }
 
         this._onShootEndRef = () => {
@@ -80,10 +78,6 @@ export class PlayerShip extends Ship {
         inputManager.getAction("player:shoot").onChange.delete(this._onShootChageRef);
 
         inputManager.getAction("player:shoot").onEnd.delete(this._onShootEndRef);
-    }
-
-    handleAim(viewPos) {
-        this._aimDir.copy(viewPos).sub(new Vector(this.scene._vw / 2, this.scene._vh / 2)).normalize();
     }
 
     update(dt) {
@@ -152,7 +146,7 @@ export class PlayerShip extends Ship {
             damage: random.randint(800, 1200),
             speed: 400,
             direction: this._aimDir,
-            position: this.position.clone().add(this._aimDir.clone().scale(64)),
+            position: this.position.clone().add(this._aimDir.clone().scale(48)),
             lifetime: 0.5
         });
         this.scene.addNode(laser);

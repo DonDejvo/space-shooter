@@ -7,10 +7,12 @@ export class PointerPosition extends PointerControl {
         super(pointerDevice, params);
 
         this.posVector = new Vector(0, 0);
+        this.mapFunc = params.mapFunc;
     }
 
     onPointerStart(id, pos) {
         this.posVector.copy(pos);
+        this.mapFunc?.(this.posVector);
         this.emit("start", this.posVector);
         this.emit("change", this.posVector);
         return true;
@@ -18,6 +20,7 @@ export class PointerPosition extends PointerControl {
 
     onPointerMove(id, pos) {
         this.posVector.copy(pos);
+        this.mapFunc?.(this.posVector);
         this.emit("change", this.posVector);
     }
 

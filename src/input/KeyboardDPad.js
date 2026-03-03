@@ -29,22 +29,17 @@ export class KeyboardDPad extends SceneNode {
             left: false,
             right: false
         };
-
-        this._onKeyDownRef = code => this.handleKey(code, true);
-        this._onKeyUpRef = code => this.handleKey(code, false);
     }
 
     start() {
-        this.device.onKeyDown.add(this._onKeyDownRef);
-        this.device.onKeyUp.add(this._onKeyUpRef);
+        this.device.registerControl(this);
     }
 
     destroy() {
-        this.device.onKeyDown.delete(this._onKeyDownRef);
-        this.device.onKeyUp.delete(this._onKeyUpRef);
+        this.device.unregisterControl(this);
     }
 
-    handleKey(code, isDown) {
+    _handleKey(code, isDown) {
         const direction = this.keyMap[code];
         if (!direction) return;
 

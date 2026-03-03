@@ -15,14 +15,35 @@ export class Minimap extends Drawable {
         this._margin = 10;
     }
 
-    update(dt) { this.needsUpdate = true; }
+    update(dt) {
+
+        // Calculate the boundaries based on center (0,0)
+        const minX = -this.mapW / 2;
+        const maxX = this.mapW / 2;
+        const minY = -this.mapH / 2;
+        const maxY = this.mapH / 2;
+
+        // Clamp X position
+        if (this.player.position.x < minX) {
+            this.player.position.x = minX;
+        } else if (this.player.position.x > maxX) {
+            this.player.position.x = maxX;
+        }
+
+        // Clamp Y position
+        if (this.player.position.y < minY) {
+            this.player.position.y = minY;
+        } else if (this.player.position.y > maxY) {
+            this.player.position.y = maxY;
+        }
+    }
 
     render(renderer, camera) {
         const { ctx } = renderer;
         ctx.setTransform(camera.projMatrix);
 
         const x = camera.vw - this._mmW - this._margin;
-        const y = camera.vh - this._mmH - this._margin;
+        const y = this._margin;
         const W = this._mmW;
         const H = this._mmH;
 

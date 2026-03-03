@@ -7,7 +7,7 @@ export class KeyboardDevice extends InputDevice {
         this.onKeyDown = new Set();
         this.onKeyUp = new Set();
 
-        window.addEventListener("keydown", e => {
+        addEventListener("keydown", e => {
             if (e.repeat) return;
 
             this.emitDeviceEvent({
@@ -16,16 +16,20 @@ export class KeyboardDevice extends InputDevice {
                 value: 1
             });
 
-            for (const callback of this.onKeyDown) callback(e.code);
+            for(let control of this.controls) {
+                control._handleKey(e.code, true);
+            }
         });
 
-        window.addEventListener("keyup", e => {
+        addEventListener("keyup", e => {
             this.emitDeviceEvent({
                 control: e.code,
                 event: "end"
             });
 
-            for (const callback of this.onKeyUp) callback(e.code);
+            for(let control of this.controls) {
+                control._handleKey(e.code, false);
+            }
         });
     }
 }
