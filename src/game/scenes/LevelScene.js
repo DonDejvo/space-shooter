@@ -13,6 +13,7 @@ import { KeyboardDPad } from "../../input/KeyboardDPad.js";
 import { Joystick } from "../../input/Joystick.js";
 import { PointerPosition } from "../../input/PointerPosition.js";
 import { Drone } from "../nodes/Drone.js";
+import { InputManager } from "../../input/InputManager.js";
 
 // Subtle grid background for the map
 class MapBackground extends Drawable {
@@ -64,13 +65,9 @@ export class LevelScene extends Scene {
     constructor(params) {
         super();
         this._params = params;
-        // params: { levelIndex, totalLevels, vw, vh, canvas,
-        //           inputManager, sheets: { player, enemy, laser, explosion, teleport },
-        //           onNextLevel, onGameOver }
 
         this._vw = params.vw;
         this._vh = params.vh;
-        this.camera = new Camera(params.vw, params.vh);
 
         // Map size: 3:2 ratio, using viewport width * 2.5
         this.mapW = 2000;
@@ -96,7 +93,11 @@ export class LevelScene extends Scene {
     }
 
     init() {
-        const { canvas, inputManager, sheets } = this._params;
+        const { sheets } = this._params;
+        const inputManager = InputManager.get();
+
+        this.camera = new Camera(this._vw, this._vh);
+        this.addNode(this.camera);
 
         const wsad = new KeyboardDPad(inputManager.keyboardDevice);
         wsad.name = "WSAD";
@@ -132,16 +133,11 @@ export class LevelScene extends Scene {
             spritesheet: sheets.player,
             laserSheet: sheets.laser,
             explosionSheet: sheets.explosion,
-            inputManager,
-            camera: this.camera,
-            canvas
+            camera: this.camera
         });
         this._player.position.set(0, 0);
         this.addNode(this._player);
 
-        // --- DRONE SETUP ---
-        // Define the 5 positions relative to the ship's origin
-        // Negative Y is forward in many 2D top-down setups; adjust signs if your ship faces Right
         const droneOffsets = [
             { x: -70, y: -20 }, // Left front side 
             { x: -70, y: 10 }, // Left back side 

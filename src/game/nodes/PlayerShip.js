@@ -15,9 +15,7 @@ export class PlayerShip extends Ship {
             hpRegenRate: 250,
             hpRegenDelay: 8
         });
-        this._inputManager = params.inputManager;
         this._camera = params.camera;
-        this._canvas = params.canvas;
 
         this.speed = 110;
         this._fireRate = 0.25;

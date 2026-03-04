@@ -12,28 +12,37 @@ export class SceneNode {
         this._parent = null;
         this._nodes = [];
         this.scene = null;
+
+        this._listeners = new Map();
     }
 
-    onMessage(message) {
+    on(type, callback) {
+        if (!this._listeners.has(type)) {
+            this._listeners.set(type, new Set());
+        }
+        this._listeners.get(type).add(callback);
     }
 
-    emit(message) {
-        if(!message.node) message.node = this;
-        this.onMessage(message);
-        if (!message.isStopped && this._parent) {
-            this._parent.emit(message);
+    once(type, callback) {
+        const wrapper = (data) => {
+            this.off(type, wrapper);
+            callback(data);
+        };
+        this.on(type, wrapper);
+    }
+
+    off(type, callback) {
+        const set = this._listeners.get(type);
+        if (set) {
+            set.delete(callback);
+            if (set.size === 0) this._listeners.delete(type);
         }
     }
 
-    broadcast(message) {
-        if(!message.node) message.node = this;
-        this.onMessage(message);
-        if (!message.isStopped) {
-            const children = this._nodes;
-            for (let i = 0; i < children.length; i++) {
-                children[i].broadcast(message);
-                if (message.isStopped) break;
-            }
+    emit(type, data) {
+        const set = this._listeners.get(type);
+        if (set) {
+            set.forEach(callback => callback(data));
         }
     }
 
@@ -109,5 +118,6 @@ export class SceneNode {
 
     start() { }
     update(dt) { }
+
     destroy() { }
 }

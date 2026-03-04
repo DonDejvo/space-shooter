@@ -1,4 +1,5 @@
 import { Scene } from "../../core/Scene.js";
+import { Camera } from "../../graphics/Camera.js";
 import { Drawable } from "../../graphics/Drawable.js";
 import { UIElement } from "../../graphics/UIElement.js";
 import { Button } from "../../input/Button.js";
@@ -224,11 +225,15 @@ class OverlayText extends Drawable {
 export class LoadingScene extends Scene {
     constructor(params) {
         super();
-        this._params = params; // { canvas, screenW, screenH, onStart }
+        this._params = params;
     }
 
     init() {
         const { wallpaperImage, onStart, vw, vh } = this._params;
+
+        this.camera = new Camera(vw, vh);
+        this.addNode(this.camera);
+
         const inputManager = InputManager.get();
 
         const wallpaper = new WallpaperDrawable(wallpaperImage, vw, vh);

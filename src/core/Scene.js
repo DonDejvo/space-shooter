@@ -1,13 +1,14 @@
 export class Scene {
-    constructor(params = {}) {
+    constructor() {
         this._nodes = [];
         this._pending = [];
         this._pendingRemove = [];
         this._layers = [];
         this._started = false;
+        this.camera = null;
     }
 
-    init() {}
+    init(params = {}) { }
 
     findLayerByDrawable(drawable) {
         return this._layers.find(l => l.isStatic === drawable.isStatic && l.zIndex === drawable.zIndex);
@@ -76,7 +77,7 @@ export class Scene {
         this._started = false;
     }
 
-    onResize(vw, vh) {}
+    onResize(vw, vh) { }
 }
 
 export class SceneLayer {

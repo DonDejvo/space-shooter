@@ -1,4 +1,3 @@
-import { Message } from "../core/Message.js";
 import { SceneNode } from "../core/SceneNode.js";
 
 export class Animation {
@@ -39,9 +38,9 @@ export class Animator extends SceneNode {
                 this.currentFrameIndex = 0;
             } else {
                 this.currentFrameIndex = this.animation.frames.length - 1;
-                this.animation = null;
                 this._onComplete = null;
-                this.emit(new Message("AnimationCompleted", true));
+                this.emit("AnimEnd", this.animation);
+                this.animation = null;
                 return;
             }
         }
