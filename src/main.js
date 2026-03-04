@@ -8,6 +8,7 @@ import { SceneManager } from "./core/SceneManager.js";
 
 import { LoadingScene } from "./game/scenes/LoadingScene.js";
 import { LevelScene } from "./game/scenes/LevelScene.js";
+import { Animation } from "./graphics/Animator.js";
 
 const main = async () => {
 
@@ -24,7 +25,7 @@ const main = async () => {
     renderer.init();
 
     // ── Input ─────────────────────────────────────────────────────────────────
-    const inputManager = InputManager.get();
+    const inputManager = new InputManager();
     inputManager.keyboardDevice = new KeyboardDevice(inputManager);
     inputManager.pointerDevice  = new PointerDevice(inputManager, canvas);
 
@@ -64,18 +65,23 @@ const main = async () => {
         teleport:  new Spritesheet({ image: images.teleport,  spriteWidth: 256, spriteHeight: 256, columns: 4, spriteCount: 24 }),
     });
 
+    const anims = {
+        teleport: new Animation([...new Array(24)].map((_, i) => i), { frameDuration: 100, repeat: false }),
+        explosion: new Animation([...new Array(16)].map((_, i) => i), { frameDuration: 60, repeat: false })
+    };
+
     // ── Scene Manager ─────────────────────────────────────────────────────────
-    const sceneManager = SceneManager.get();
+    const sceneManager = new SceneManager();
 
     const TOTAL_LEVELS = 3;
     let sheets = null;
 
     sceneManager.define("loading", ({ wallpaperImage, onStart }) =>
-        new LoadingScene({ canvas, vw: VW, vh: VH, wallpaperImage, onStart })
+        new LoadingScene({ canvas, vw: VW, vh: VH, wallpaperImage, onStart, inputManager })
     );
 
     sceneManager.define("level", ({ levelIndex, onNextLevel, onGameOver }) =>
-        new LevelScene({ levelIndex, totalLevels: TOTAL_LEVELS, vw: VW, vh: VH, canvas, inputManager, sheets, onNextLevel, onGameOver })
+        new LevelScene({ levelIndex, totalLevels: TOTAL_LEVELS, vw: VW, vh: VH, canvas, inputManager, sheets, anims, onNextLevel, onGameOver })
     );
 
     // ── Level helpers ─────────────────────────────────────────────────────────

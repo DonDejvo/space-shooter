@@ -1,7 +1,6 @@
 import { Ship } from "./Ship.js";
 import { Laser } from "./Laser.js";
 import { Vector } from "../../utils/Vector.js";
-import { InputManager } from "../../input/InputManager.js";
 import { random } from "../../utils/random.js";
 import { SceneNode } from "../../core/SceneNode.js";
 
@@ -16,6 +15,7 @@ export class PlayerShip extends Ship {
             hpRegenDelay: 8
         });
         this._camera = params.camera;
+        this.inputManager = params.inputManager;
 
         this.speed = 110;
         this._fireRate = 0.25;
@@ -53,14 +53,13 @@ export class PlayerShip extends Ship {
     start() {
         super.start();
 
-        const inputManager = InputManager.get();
-        inputManager.getAction("player:move").onChange.add(this._onMoveRef);
+        this.inputManager.getAction("player:move").onChange.add(this._onMoveRef);
 
-        inputManager.getAction("player:shoot").onStart.add(this._onShootStartRef);
+        this.inputManager.getAction("player:shoot").onStart.add(this._onShootStartRef);
 
-        inputManager.getAction("player:shoot").onChange.add(this._onShootChageRef);
+        this.inputManager.getAction("player:shoot").onChange.add(this._onShootChageRef);
 
-        inputManager.getAction("player:shoot").onEnd.add(this._onShootEndRef);
+        this.inputManager.getAction("player:shoot").onEnd.add(this._onShootEndRef);
 
         this.scene.addNode(this._droneOrigin);
     }
@@ -68,14 +67,13 @@ export class PlayerShip extends Ship {
     destroy() {
         super.destroy();
 
-        const inputManager = InputManager.get();
-        inputManager.getAction("player:move").onChange.delete(this._onMoveRef);
+        this.inputManager.getAction("player:move").onChange.delete(this._onMoveRef);
 
-        inputManager.getAction("player:shoot").onStart.delete(this._onShootStartRef);
+        this.inputManager.getAction("player:shoot").onStart.delete(this._onShootStartRef);
 
-        inputManager.getAction("player:shoot").onChange.delete(this._onShootChageRef);
+        this.inputManager.getAction("player:shoot").onChange.delete(this._onShootChageRef);
 
-        inputManager.getAction("player:shoot").onEnd.delete(this._onShootEndRef);
+        this.inputManager.getAction("player:shoot").onEnd.delete(this._onShootEndRef);
     }
 
     update(dt) {

@@ -3,7 +3,6 @@ import { Camera } from "../../graphics/Camera.js";
 import { Drawable } from "../../graphics/Drawable.js";
 import { UIElement } from "../../graphics/UIElement.js";
 import { Button } from "../../input/Button.js";
-import { InputManager } from "../../input/InputManager.js";
 
 class StartButtonDrawable extends UIElement {
     constructor(params) {
@@ -75,13 +74,13 @@ class StartButton extends Button {
     start() {
         super.start();
 
-        InputManager.get().getAction("game:start").onEnd.add(this.onClickRef);
+        this.pointerDevice.inputManager.getAction("game:start").onEnd.add(this.onClickRef);
     }
 
     destroy() {
         super.destroy();
 
-        InputManager.get().getAction("game:start").onEnd.delete(this.onClickRef);
+        this.pointerDevice.inputManager.getAction("game:start").onEnd.delete(this.onClickRef);
     }
 }
 
@@ -147,7 +146,7 @@ class FullscreenButton extends Button {
     start() {
         super.start();
 
-        InputManager.get().getAction("game:fullscreen").onEnd.add(this.onClickRef);
+        this.pointerDevice.inputManager.getAction("game:fullscreen").onEnd.add(this.onClickRef);
 
         document.addEventListener("fullscreenchange", this.fullscreenRef);
     }
@@ -155,7 +154,7 @@ class FullscreenButton extends Button {
     destroy() {
         super.destroy();
 
-        InputManager.get().getAction("game:fullscreen").onEnd.delete(this.onClickRef);
+        this.pointerDevice.inputManager.getAction("game:fullscreen").onEnd.delete(this.onClickRef);
 
         document.removeEventListener("fullscreenchange", this.fullscreenRef);
     }
@@ -229,12 +228,10 @@ export class LoadingScene extends Scene {
     }
 
     init() {
-        const { wallpaperImage, onStart, vw, vh } = this._params;
+        const { wallpaperImage, onStart, vw, vh, inputManager } = this._params;
 
         this.camera = new Camera(vw, vh);
         this.addNode(this.camera);
-
-        const inputManager = InputManager.get();
 
         const wallpaper = new WallpaperDrawable(wallpaperImage, vw, vh);
         this.addNode(wallpaper);

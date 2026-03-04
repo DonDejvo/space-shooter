@@ -7,6 +7,10 @@ export class InputDevice {
         this.controls = new Set();
     }
 
+    get inputManager() {
+        return this.manager;
+    }
+
     registerControl(control) {
         this.controls.add(control);
     }

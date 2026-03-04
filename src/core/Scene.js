@@ -1,5 +1,5 @@
 export class Scene {
-    constructor() {
+    constructor(params = {}) {
         this._nodes = [];
         this._pending = [];
         this._pendingRemove = [];
@@ -8,7 +8,7 @@ export class Scene {
         this.camera = null;
     }
 
-    init(params = {}) { }
+    init() { }
 
     findLayerByDrawable(drawable) {
         return this._layers.find(l => l.isStatic === drawable.isStatic && l.zIndex === drawable.zIndex);

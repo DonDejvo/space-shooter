@@ -1,5 +1,5 @@
 import { Sprite } from "../../graphics/Sprite.js";
-import { Animator, Animation } from "../../graphics/Animator.js";
+import { Animator } from "../../graphics/Animator.js";
 
 export class ExplosionEffect extends Sprite {
     constructor(params) {
@@ -18,10 +18,7 @@ export class ExplosionEffect extends Sprite {
         super.start();
         this.addNode(this._animator);
         this._animator.once("AnimEnd", () => this.scene.removeNode(this));
-        // 4x4 sheet = frames 0..15
-        const frames = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
-        const anim = new Animation(frames, { frameDuration: 55, repeat: false });
-        this._animator.play(anim);
+        this._animator.play(this.scene._params.anims.explosion);
     }
 
     update(dt) {

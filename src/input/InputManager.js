@@ -1,15 +1,6 @@
 import { InputAction } from "./InputAction.js";
 
 export class InputManager {
-    static _instance = null;
-
-    static get() {
-        if (this._instance === null) {
-            this._instance = new InputManager();
-        }
-        return this._instance;
-    }
-
     constructor() {
         this.actions = new Map();
         this.controlToBindings = new Map();

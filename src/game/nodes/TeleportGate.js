@@ -1,5 +1,5 @@
 import { Sprite } from "../../graphics/Sprite.js";
-import { Animator, Animation } from "../../graphics/Animator.js";
+import { Animator } from "../../graphics/Animator.js";
 import { Vector } from "../../utils/Vector.js";
 
 export class TeleportGate extends Sprite {
@@ -27,11 +27,7 @@ export class TeleportGate extends Sprite {
     activate() {
         if (this._activated) return;
         this._activated = true;
-        // 4 columns × 6 rows = 24 frames
-        const frames = [];
-        for (let i = 0; i < 24; i++) frames.push(i);
-        const anim = new Animation(frames, { frameDuration: 100, repeat: false });
-        this._animator.play(anim);
+        this._animator.play(this.scene._params.anims.teleport);
     }
 
     update(dt) {

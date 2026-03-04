@@ -1,12 +1,4 @@
 export class SceneManager {
-    static _instance = null;
-
-    static get() {
-        if(this._instance === null) {
-            this._instance = new SceneManager();
-        }
-        return this._instance;
-    }
 
     constructor() {
         /** @type {Map<string, (params?: object) => Scene>} */
@@ -31,7 +23,7 @@ export class SceneManager {
         }
 
         const scene = this._registry.get(name)(params);
-        scene.init(params);
+        scene.init();
         scene.start();
         this._current = scene;
     }

@@ -13,7 +13,6 @@ import { KeyboardDPad } from "../../input/KeyboardDPad.js";
 import { Joystick } from "../../input/Joystick.js";
 import { PointerPosition } from "../../input/PointerPosition.js";
 import { Drone } from "../nodes/Drone.js";
-import { InputManager } from "../../input/InputManager.js";
 
 // Subtle grid background for the map
 class MapBackground extends Drawable {
@@ -93,8 +92,7 @@ export class LevelScene extends Scene {
     }
 
     init() {
-        const { sheets } = this._params;
-        const inputManager = InputManager.get();
+        const { sheets, inputManager } = this._params;
 
         this.camera = new Camera(this._vw, this._vh);
         this.addNode(this.camera);
@@ -133,7 +131,8 @@ export class LevelScene extends Scene {
             spritesheet: sheets.player,
             laserSheet: sheets.laser,
             explosionSheet: sheets.explosion,
-            camera: this.camera
+            camera: this.camera,
+            inputManager
         });
         this._player.position.set(0, 0);
         this.addNode(this._player);
