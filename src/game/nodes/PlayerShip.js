@@ -1,8 +1,8 @@
 import { Ship } from "./Ship.js";
 import { Laser } from "./Laser.js";
+import { SceneNode } from "../../core/SceneNode.js";
 import { Vector } from "../../utils/Vector.js";
 import { random } from "../../utils/random.js";
-import { SceneNode } from "../../core/SceneNode.js";
 
 export class PlayerShip extends Ship {
     constructor(params) {
@@ -27,88 +27,71 @@ export class PlayerShip extends Ship {
 
         this.droneAngle = 0;
 
-        this._postShootTimer = 0;
-        this._postShootDuration = 1.5; // Seconds to keep facing the aim direction
+        // droneOrigin is the parenting anchor for drone nodes.
+        // It is created in start() via addNode() so it is owned by this ship.
+        this.droneOrigin = new SceneNode();
 
-        this._onMoveRef = (value) => {
-            this._moveDir.copy(value);
-        }
-
-        this._onShootStartRef = (value) => {
-            this._isShooting = true;
-            this._aimDir.copy(value);
-        }
-
-        this._onShootChageRef = (value) => {
-            this._aimDir.copy(value);
-        }
-
-        this._onShootEndRef = () => {
+        this._onMoveRef = (value) => { this._moveDir.copy(value); };
+        this._onShootStartRef = (value) => { this._isShooting = true; this._aimDir.copy(value); };
+        this._onShootChangeRef = (value) => { this._aimDir.copy(value); };
+         this._onShootEndRef = () => {
             this._isShooting = false;
         }
-
-        this._droneOrigin = new SceneNode();
+        this._onLaserSpawned = params.onLaserSpawned || null;
     }
 
     start() {
         super.start();
 
+        // droneOrigin is an owned child: created with addNode so it is
+        // parented to this ship and updated/destroyed automatically.
+        this.addNode(this.droneOrigin);
+
         this.inputManager.getAction("player:move").onChange.add(this._onMoveRef);
-
         this.inputManager.getAction("player:shoot").onStart.add(this._onShootStartRef);
-
-        this.inputManager.getAction("player:shoot").onChange.add(this._onShootChageRef);
-
+        this.inputManager.getAction("player:shoot").onChange.add(this._onShootChangeRef);
         this.inputManager.getAction("player:shoot").onEnd.add(this._onShootEndRef);
-
-        this.scene.addNode(this._droneOrigin);
     }
 
     destroy() {
         super.destroy();
-
         this.inputManager.getAction("player:move").onChange.delete(this._onMoveRef);
-
         this.inputManager.getAction("player:shoot").onStart.delete(this._onShootStartRef);
-
-        this.inputManager.getAction("player:shoot").onChange.delete(this._onShootChageRef);
-
+        this.inputManager.getAction("player:shoot").onChange.delete(this._onShootChangeRef);
         this.inputManager.getAction("player:shoot").onEnd.delete(this._onShootEndRef);
     }
 
     update(dt) {
         this.gameTime += dt;
         if (this._dead) return;
-        this.needsUpdate = true;
 
         const movLen = this._moveDir.len();
         if (movLen > 0) {
             this._moveDir.normalize();
             this.position.x += this._moveDir.x * this.speed * dt;
             this.position.y += this._moveDir.y * this.speed * dt;
-            // Face movement direction: atan2(dx, -dy) gives angle where 0=up
-            this.facing = Math.atan2(-this._moveDir.x, -this._moveDir.y);
+            this.facing    = Math.atan2(-this._moveDir.x, -this._moveDir.y);
             this.droneAngle = Math.atan2(this._moveDir.x, -this._moveDir.y);
         }
 
         if (this._isShooting) {
-            this.facing = Math.atan2(-this._aimDir.x, -this._aimDir.y);
+            this.facing    = Math.atan2(-this._aimDir.x, -this._aimDir.y);
             this.droneAngle = Math.atan2(this._aimDir.x, -this._aimDir.y);
         }
 
-        // --- Shooting ---
+        // Shooting
         this._fireCooldown -= dt;
         if (this._isShooting && this._fireCooldown <= 0) {
             this._fireCooldown = this._fireRate;
             this._shoot();
         }
 
-        // --- Shield regen ---
+        // Shield regen
         if (this.shield < this.maxShield) {
             this.shield = Math.min(this.maxShield, this.shield + this.shieldRegenRate * dt);
         }
 
-        // --- HP regen (repair) - only after 5s since last hit ---
+        // HP regen after delay since last hit
         if (this.hp < this.maxHp && (this.gameTime - this._lastHitTime) > this.hpRegenDelay) {
             const healed = this.hpRegenRate * dt;
             this._healAccum += healed;
@@ -123,12 +106,17 @@ export class PlayerShip extends Ship {
 
         this._updateSpriteFrame();
 
-        this._droneOrigin.position.copy(this.position);
-        this._droneOrigin.angle = this.droneAngle;
-        this._droneOrigin.facing = this.facing;
+        // Keep droneOrigin co-located with the ship so drones follow correctly.
+        // droneOrigin is a child node (local position = 0,0 relative to ship),
+        // so only the angle needs updating.
+        this.droneOrigin.angle = this.droneAngle;
+        this.droneOrigin.facing = this.facing;
 
         // Camera follow
-        this._camera.position.lerp(this.position.clone().sub(new Vector(this._camera.vw / 2, this._camera.vh / 2)), 0.08);
+        this._camera.position.lerp(
+            this.position.clone().sub(new Vector(this._camera.vw / 2, this._camera.vh / 2)),
+            0.08
+        );
     }
 
     _shoot() {
@@ -146,5 +134,6 @@ export class PlayerShip extends Ship {
             lifetime: 0.5
         });
         this.scene.addNode(laser);
+        if (this._onLaserSpawned) this._onLaserSpawned(laser);
     }
 }

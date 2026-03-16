@@ -1,41 +1,24 @@
 import { Drawable } from "../../graphics/Drawable.js";
 
+// Minimap is a screen-space HUD Drawable.
+// It only reads game state — it never modifies it.
+// Player position clamping is a gameplay concern handled by the scene/ship, not the HUD.
 export class Minimap extends Drawable {
     constructor(params) {
-        // Positioned bottom-right in screen space
-        super({ zIndex: 100, isStatic: true, isScreenSpace: true, width: 120, height: 80 });
+        super({ zIndex: 100, isStatic: false, isScreenSpace: true, width: 120, height: 80 });
         this.mapW = params.mapW;
         this.mapH = params.mapH;
-        this.player = null;
-        this.enemies = [];
+        this.player   = null;
+        this.enemies  = [];
         this.teleport = null;
 
-        this._mmW = 120;
-        this._mmH = 80;
+        this._mmW    = 120;
+        this._mmH    = 80;
         this._margin = 10;
     }
 
     update(dt) {
-
-        // Calculate the boundaries based on center (0,0)
-        const minX = -this.mapW / 2;
-        const maxX = this.mapW / 2;
-        const minY = -this.mapH / 2;
-        const maxY = this.mapH / 2;
-
-        // Clamp X position
-        if (this.player.position.x < minX) {
-            this.player.position.x = minX;
-        } else if (this.player.position.x > maxX) {
-            this.player.position.x = maxX;
-        }
-
-        // Clamp Y position
-        if (this.player.position.y < minY) {
-            this.player.position.y = minY;
-        } else if (this.player.position.y > maxY) {
-            this.player.position.y = maxY;
-        }
+        this.needsUpdate = true;
     }
 
     render(renderer, camera) {
@@ -59,14 +42,14 @@ export class Minimap extends Drawable {
             y: y + (wy / this.mapH + 0.5) * H
         });
 
-        // Teleport (cyan diamond)
+        // Teleport gate (cyan diamond)
         if (this.teleport) {
             const tp = toMM(this.teleport.position.x, this.teleport.position.y);
             ctx.fillStyle = "#00ffff";
             ctx.beginPath();
-            ctx.moveTo(tp.x, tp.y - 5);
+            ctx.moveTo(tp.x,     tp.y - 5);
             ctx.lineTo(tp.x + 4, tp.y);
-            ctx.lineTo(tp.x, tp.y + 5);
+            ctx.lineTo(tp.x,     tp.y + 5);
             ctx.lineTo(tp.x - 4, tp.y);
             ctx.closePath();
             ctx.fill();
@@ -83,7 +66,7 @@ export class Minimap extends Drawable {
             ctx.fill();
         }
 
-        // Player (green triangle)
+        // Player (green dot)
         if (this.player && !this.player._dead) {
             const pp = toMM(this.player.position.x, this.player.position.y);
             ctx.fillStyle = "#44ff88";

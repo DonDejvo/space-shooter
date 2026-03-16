@@ -16,7 +16,7 @@ export class EnemyShip extends Ship {
         this._fireRange = 240;
         this._fireRate = 0.9;
         this._fireCooldown = Math.random() * this._fireRate;
-        this.onDeath = params.onDeath || null;
+        this._onLaserSpawned = params.onLaserSpawned || null;
 
         this._moveTarget = new Vector();
         this._targetUpdateInterval = 1;
@@ -25,14 +25,13 @@ export class EnemyShip extends Ship {
 
     _onDeath() {
         if (this._dead) return;
-        if (this.onDeath) this.onDeath(this);
+        this.emit('death', this);
         super._onDeath();
     }
 
     update(dt) {
         if (this._dead) return;
         this.gameTime += dt;
-        this.needsUpdate = true;
 
         const toPlayer = this._player.position.clone().sub(this.position);
         const dist = toPlayer.len();
@@ -95,5 +94,6 @@ export class EnemyShip extends Ship {
             lifetime: 1.0
         });
         this.scene.addNode(laser);
+        if (this._onLaserSpawned) this._onLaserSpawned(laser);
     }
 }

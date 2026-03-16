@@ -1,3 +1,4 @@
+import { SceneNode } from "../../core/SceneNode.js";
 import { Sprite } from "../../graphics/Sprite.js";
 import { HealthBars } from "./HealthBars.js";
 import { FloatingText } from "./FloatingText.js";
@@ -7,15 +8,16 @@ import { Vector } from "../../utils/Vector.js";
 const SPRITE_FRAMES = 16;
 const FRAME_ANGLE_STEP = (Math.PI * 2) / SPRITE_FRAMES; // 22.5° per frame
 
-export class Ship extends Sprite {
+// Ship is a logical game-entity node, NOT a Sprite itself.
+// Per course Lesson 3: a game object is a root SceneNode that owns
+// its visual children (Sprite, Animator, etc.) via this.addNode() in start().
+export class Ship extends SceneNode {
     constructor(params) {
-        super({
-            spritesheet: params.spritesheet,
-            zIndex: 10,
-            isStatic: false,
-            spriteRegion: { x: 0, y: 0 }
-        });
-        this.scale.set(0.5, 0.5);
+        super();
+
+        this._spritesheet    = params.spritesheet;
+        this._explosionSheet = params.explosionSheet || null;
+        this._laserSheet     = params.laserSheet     || null;
 
         this.maxHp     = params.maxHp     || 100;
         this.hp        = this.maxHp;
@@ -26,29 +28,35 @@ export class Ship extends Sprite {
         this.hpRegenRate     = params.hpRegenRate     || 0;
         this.hpRegenDelay    = params.hpRegenDelay    || 5;
 
-        this.gameTime     = 0;     // updated each frame by subclass
+        this.gameTime     = 0;
         this._lastHitTime = -9999;
         this._dead        = false;
-        this._healthBars  = null;
 
-        this._explosionSheet = params.explosionSheet || null;
-        this._laserSheet     = params.laserSheet     || null;
+        // Child node references – set in start()
+        this._sprite     = null;
+        this._healthBars = null;
 
         this.facing = 0; // radians; 0 = up (+Y negative direction)
     }
 
     start() {
-        super.start();
-        this._healthBars = new HealthBars(this);
-        this.scene.addNode(this._healthBars);
+        // Create owned child nodes here, where this.scene is guaranteed set.
+        this._sprite = this.addNode(new Sprite({
+            spritesheet: this._spritesheet,
+            zIndex: 10,
+            isStatic: false,
+            spriteRegion: { x: 0, y: 0 }
+        }));
+        this._sprite.scale.set(0.5, 0.5);
+
+        this._healthBars = this.addNode(new HealthBars(this));
     }
 
     _updateSpriteFrame() {
         let a = this.facing % (Math.PI * 2);
         if (a < 0) a += Math.PI * 2;
         const frame = Math.round(a / FRAME_ANGLE_STEP) % SPRITE_FRAMES;
-        
-        this.setRegion(this.spritesheet.getSpriteXY(frame));
+        this._sprite.setRegion(this._spritesheet.getSpriteXY(frame));
     }
 
     takeDamage(amount) {
@@ -98,14 +106,6 @@ export class Ship extends Sprite {
     }
 
     update(dt) {
-        this.needsUpdate = true;
-    }
-
-    destroy() {
-        super.destroy();
-        if (this._healthBars && this._healthBars.scene) {
-            this._healthBars.scene.removeNode(this._healthBars);
-            this._healthBars = null;
-        }
+        // Subclasses advance gameTime and movement; base just exists.
     }
 }

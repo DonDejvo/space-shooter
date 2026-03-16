@@ -1,5 +1,8 @@
 import { Drawable } from "../../graphics/Drawable.js";
 
+// HealthBars is a Drawable child of Ship (added via Ship.start() → addNode).
+// Because it is parented to Ship, its world position follows the ship automatically.
+// The local Y offset places the bars below the ship center in local space.
 export class HealthBars extends Drawable {
     constructor(ship) {
         super({ zIndex: 35, isStatic: false, isScreenSpace: false, width: 40, height: 12 });
@@ -7,12 +10,12 @@ export class HealthBars extends Drawable {
         this._barW = 40;
         this._barH = 5;
         this._gap = 2;
-        this._offsetY = 38; // world units below ship center
+        // Place bars below the ship sprite center in local space.
+        this.position.y = 38;
     }
 
     update(dt) {
-        this.position.copy(this.ship.position);
-        this.position.y += this._offsetY;
+        // Position is maintained by the parent transform — nothing to do here.
         this.needsUpdate = true;
     }
 
@@ -21,9 +24,6 @@ export class HealthBars extends Drawable {
         const { ctx } = renderer;
         const m = camera.projViewMatrix.multiply(this.modelMatrix);
 
-        // Get pixel scale from matrix
-        const scaleX = Math.sqrt(m.a * m.a + m.b * m.b);
-
         ctx.save();
         ctx.setTransform(m.a, m.b, m.c, m.d, m.e, m.f);
 
@@ -31,7 +31,7 @@ export class HealthBars extends Drawable {
         const bh = this._barH;
         const gap = this._gap;
 
-        // HP bar (green)
+        // HP bar (green → yellow → red)
         const hpRatio = Math.max(0, this.ship.hp / this.ship.maxHp);
         ctx.fillStyle = "#1a1a1a";
         ctx.fillRect(-bw / 2, -bh - gap / 2, bw, bh);

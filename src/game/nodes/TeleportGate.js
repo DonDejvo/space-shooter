@@ -1,37 +1,45 @@
+import { SceneNode } from "../../core/SceneNode.js";
 import { Sprite } from "../../graphics/Sprite.js";
 import { Animator } from "../../graphics/Animator.js";
 import { Vector } from "../../utils/Vector.js";
 
-export class TeleportGate extends Sprite {
+const ACTIVATION_RADIUS = 80;
+
+export class TeleportGate extends SceneNode {
     constructor(params) {
-        super({
-            spritesheet: params.spritesheet,
-            zIndex: 9,
-            isStatic: false,
-            spriteRegion: { x: 0, y: 0 }
-        });
-        // Full scale (256x256)
-        this.scale.set(1.0, 1.0);
+        super();
+        this._spritesheet  = params.spritesheet;
+        this._teleportAnim = params.teleportAnim;
+        this._player       = params.player;
         this.position.copy(params.position || new Vector());
         this._activated = false;
-        this.onActivate = params.onActivate; // callback when teleport completes
-        this._animator = new Animator(this);
+
+        this._animator = null;
+        this._sprite   = null;
     }
 
     start() {
-        super.start();
-        this.addNode(this._animator);
-        this._animator.on("AnimEnd", this.onActivate);
+        this._sprite = this.addNode(new Sprite({
+            spritesheet: this._spritesheet,
+            zIndex: 9,
+            isStatic: false,
+            spriteRegion: { x: 0, y: 0 }
+        }));
+        this._sprite.scale.set(1.0, 1.0);
+
+        this._animator = this.addNode(new Animator(this._sprite));
+        this._animator.on("AnimEnd", () => this.emit('activated'));
     }
 
-    activate() {
+    update(_dt) {
+        if (this._activated || !this._player || this._player._dead) return;
+        const dist = Vector.distance(this._player.position, this.position);
+        if (dist < ACTIVATION_RADIUS) this._activate();
+    }
+
+    _activate() {
         if (this._activated) return;
         this._activated = true;
-        this._animator.play(this.scene._params.anims.teleport);
-    }
-
-    update(dt) {
-        this.needsUpdate = true;
-        if (this._animator) this._animator.update(dt);
+        this._animator.play(this._teleportAnim);
     }
 }

@@ -16,6 +16,7 @@ export class Scene {
 
     addNode(node) {
         if (this._started) {
+            node.scene = this;
             this._pending.push(node);
         } else {
             this._nodes.push(node);
@@ -35,7 +36,10 @@ export class Scene {
             this._nodes.splice(i, 1);
         } else {
             const pi = this._pending.indexOf(node);
-            if (pi !== -1) this._pending.splice(pi, 1);
+            if (pi !== -1) {
+                node.scene = null;
+                this._pending.splice(pi, 1);
+            }
         }
     }
 
